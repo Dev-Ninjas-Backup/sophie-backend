@@ -5,9 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('webhook')
 export class WebhookController {
-  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-11-17.clover',
-  });
+  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
   constructor(private prisma: PrismaService) {}
 

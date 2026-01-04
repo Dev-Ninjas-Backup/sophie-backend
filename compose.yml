@@ -1,0 +1,101 @@
+services:
+  caddy:
+    profiles: ["prod"]
+    image: caddy:2-alpine
+    container_name: ${PACKAGE_NAME}_caddy
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'caddy validate --config /etc/caddy/Caddyfile']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - default
+
+  server:
+    profiles: ["prod"]
+    platform: linux/amd64
+    image: ${DOCKER_USERNAME}/${PACKAGE_NAME}:${PACKAGE_VERSION}
+    container_name: ${PACKAGE_NAME}_api
+    restart: always
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/${PACKAGE_NAME}_db
+      BASE_URL: ${BASE_URL}
+      PORT: ${PORT:-3000}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL}
+      SUPER_ADMIN_PASS: ${SUPER_ADMIN_PASS}
+      BREVO_API_KEY: ${BREVO_API_KEY}
+      BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL}
+      BREVO_SENDER_NAME: ${BREVO_SENDER_NAME}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+
+    ports:
+      - '${PORT}:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npm", "start"]
+    volumes:
+      - files-data:/app/uploads
+      - temp-data:/app/tmp
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - default
+
+  db:
+    profiles: ["dev", "prod"]
+    image: postgres:17
+    container_name: ${PACKAGE_NAME}_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${PACKAGE_NAME}_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:5434:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+volumes:
+  db_data:
+  files-data:
+  temp-data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  default:
+    name: ${PACKAGE_NAME}_network
+    driver: bridge
+    labels:
+      - 'project=${PACKAGE_NAME}'
