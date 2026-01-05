@@ -15,7 +15,7 @@ export class AppService {
       developer: {
         name: 'Shazen',
         role: 'Full Stack Developer',
-        contact: 'shazan.softvence@gmail.com',
+        contact: 'shariyershazan1@gmail.com',
         github: 'https://github.com/shariyerShazan',
         message: 'Built with ❤️ by Shazen',
       },

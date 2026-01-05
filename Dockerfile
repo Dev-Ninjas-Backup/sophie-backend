@@ -28,9 +28,9 @@ RUN addgroup --system --gid 1001 nodejs && \
     chown -R nestjs:nodejs /app
 
 USER nestjs
-EXPOSE 3000
+EXPOSE 5080
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
-  CMD curl -f http://localhost:3000/health || exit 1
+  CMD curl -f http://localhost:5080/health || exit 1
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
