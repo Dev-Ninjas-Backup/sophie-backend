@@ -8,14 +8,15 @@ import { RegisterModule } from './register/register.module';
 import { ConfigModule } from '@nestjs/config';
 import { WebhookController } from './webhook/webhook.controller';
 import { RedeemModule } from './redeem/redeem.module';
-import { MailService } from './mail/mail.service';
+// import { MailService } from './mail/membership-mail.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ExpireRegisterService } from './expire-register/expire-register.service';
 import { CategoryService } from './category/category.service';
 import { CategoryModule } from './category/category.module';
 import { PartnerService } from './partner/partner.service';
 import { PartnerModule } from './partner/partner.module';
 import { AuthModule } from './auth/auth.module';
+import { MembershipMailService } from './mail/membership-mail.service';
+import { MailModule } from './mail/mail.module';
 
 
 
@@ -30,8 +31,9 @@ import { AuthModule } from './auth/auth.module';
     CategoryModule,
     PartnerModule,
     AuthModule,
+    MailModule,
   ],
   controllers: [AppController, WebhookController],
-  providers: [AppService, PrismaService, RegisterService, MailService, ExpireRegisterService, CategoryService, PartnerService],
+  providers: [AppService, PrismaService, RegisterService, MembershipMailService, CategoryService, PartnerService],
 })
 export class AppModule {}
