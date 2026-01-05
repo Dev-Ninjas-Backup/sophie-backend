@@ -2,9 +2,9 @@ name: Format, Build, Docker & Deploy
 
 on:
   push:
-    branches: [shazan]
+    branches: [main]
   pull_request:
-    branches: [shazan]
+    branches: [main]
 
 jobs:
   ci-check:
@@ -23,10 +23,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-      
-      - name: Format Check
-        run: npm run format
-        continue-on-error: true
 
       - name: Validate Prisma Schema
         run: npm run db:validate
