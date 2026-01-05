@@ -1,4 +1,4 @@
-api.naqel.app {
+api.olimpass.io {
 	reverse_proxy sophie_server:3000{
 		transport http {
 			1.1
@@ -14,5 +14,19 @@ api.naqel.app {
 		X-XSS-Protection   "1; mode=block"
 		Strict-Transport-Security "max-age=31536000;includeSubDomains:preload";
 
+	}
+}
+
+ www.olimpass.io {
+	reverse_proxy sophie_frontend:3000 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+	}
+	header {
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 	}
 }
