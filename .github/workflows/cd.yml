@@ -2,9 +2,9 @@ name: Format, Build, Docker & Deploy
 
 on:
   push:
-    branches: [shazan]
+    branches: [main]
   pull_request:
-    branches: [shazan]
+    branches: [main]
 
 jobs:
   ci-check:
