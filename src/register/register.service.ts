@@ -6,7 +6,7 @@ import { CreateRegistrationDto } from './dto/create-registration.dto';
 
 @Injectable()
 export class RegisterService {
-  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-11-17.clover' });
+  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
   constructor(private prisma: PrismaService
     , private mailService: MembershipMailService
