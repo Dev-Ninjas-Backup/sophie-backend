@@ -1,10 +1,10 @@
-const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcryptjs");
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = "talharris14@gmail.com";
+  const adminEmail = 'talharris14@gmail.com';
 
   // check if admin already exists
   const existingAdmin = await prisma.admin.findUnique({
@@ -12,21 +12,21 @@ async function main() {
   });
 
   if (existingAdmin) {
-    console.log("Admin already exists. Skipping seed.");
+    console.log('Admin already exists. Skipping seed.');
     return;
   }
 
-  const hashedPassword = await bcrypt.hash("Admin123", 12);
+  const hashedPassword = await bcrypt.hash('Admin123', 12);
 
   await prisma.admin.create({
     data: {
       email: adminEmail,
       password: hashedPassword,
-      role: "ADMIN",
+      role: 'ADMIN',
     },
   });
 
-  console.log("Admin seeded successfully");
+  console.log('Admin seeded successfully');
 }
 
 main()

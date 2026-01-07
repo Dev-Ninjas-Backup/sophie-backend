@@ -4,47 +4,39 @@ import { ValidationPipe } from '@nestjs/common';
 import * as bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-   app.enableCors({
+  app.enableCors({
     origin: [
-        'http://localhost:3000',
-        'http://localhost:5173' ,
-        'http://localhost:5174' , 
-        'http://localhost:5175' , 
-        "https://sophie-six.vercel.app" ,
-         "https://www.olimpass.io" , 
-         "https://olimpass.io"
-        ], 
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'https://sophie-six.vercel.app',
+      'https://www.olimpass.io',
+      'https://olimpass.io',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true, 
+    credentials: true,
   });
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, 
+      whitelist: true,
       transform: true,
     }),
   );
   app.use(
     '/webhook',
-    bodyParser.raw({ type: 'application/json' ,  limit: '10mb'}),
+    bodyParser.raw({ type: 'application/json', limit: '10mb' }),
   );
-  app.use(bodyParser.json())
+  app.use(bodyParser.json());
 
-const PORT = process.env.PORT || 3333;
+  const PORT = process.env.PORT || 3333;
   await app.listen(PORT);
 }
 bootstrap();
-
-
-
-
-
-
-
 
 // // src/main.ts
 // import { NestFactory } from '@nestjs/core';
@@ -75,7 +67,6 @@ bootstrap();
 
 //   app.use(cookieParser());
 
-
 //   app.useGlobalPipes(
 //     new ValidationPipe({
 //       whitelist: true,
@@ -92,12 +83,3 @@ bootstrap();
 //   await app.init();
 //   return server;
 // }
-
-
-
-
-
-
-
-
-
