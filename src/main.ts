@@ -9,7 +9,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
    app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:5173' , 'http://localhost:5174' , 'http://localhost:5175' , "https://sophie-six.vercel.app"], 
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:5173' ,
+        'http://localhost:5174' , 
+        'http://localhost:5175' , 
+        "https://sophie-six.vercel.app" ,
+         "https://www.olimpass.io" , 
+         "https://olimpass.io"
+        ], 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true, 
   });
