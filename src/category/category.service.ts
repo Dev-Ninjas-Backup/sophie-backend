@@ -107,10 +107,15 @@ async create(data: CreateCategoryDto) {
 
   async delete(id: string) {
     try {
-      const category = await this.prisma.category.delete({
-        where: { id },
-        include: { partners: true }, 
-      });
+
+
+      await this.prisma.partner.deleteMany({
+      where: { categoryId: id },
+    });
+
+    const category = await this.prisma.category.delete({
+          where: { id },
+        });
 
       return {
         success: true,
