@@ -9,7 +9,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000',
+      'https://olimpass.io',
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:5175',

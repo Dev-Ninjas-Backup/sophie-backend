@@ -17,6 +17,7 @@ import { PartnerModule } from './partner/partner.module';
 import { AuthModule } from './auth/auth.module';
 import { MembershipMailService } from './mail/membership-mail.service';
 import { MailModule } from './mail/mail.module';
+import { SeedService } from './auth/seed/admin.seed';
 
 
 
@@ -34,6 +35,6 @@ import { MailModule } from './mail/mail.module';
     MailModule,
   ],
   controllers: [AppController, WebhookController],
-  providers: [AppService, PrismaService, RegisterService, MembershipMailService, CategoryService, PartnerService],
+  providers: [AppService, PrismaService, RegisterService, MembershipMailService, CategoryService, PartnerService , SeedService],
 })
 export class AppModule {}
