@@ -1,34 +1,48 @@
-import { IsString, IsEmail, IsOptional, IsDateString, IsEnum, IsNotEmpty, isString } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  // isString,
+} from 'class-validator';
 // import { Type } from 'class-transformer';
 
 export class CreateRegistrationDto {
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   firstName: string;
 
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   lastName: string;
 
   @IsEmail()
   email: string;
 
-  @IsString() @IsOptional()
+  @IsString()
+  @IsOptional()
   phone?: string;
 
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   teudatZehut: string;
 
-  @IsDateString() 
+  @IsDateString()
   aliyahDate: string;
 
-  @IsEnum(['1 year','2 years','3 years'])
+  @IsEnum(['1 year', '2 years', '3 years'])
   validity: string;
 
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   cardholderName: string;
 
-  @IsEnum(['stripe','visa','mastercard','gpay'])
+  @IsEnum(['stripe', 'visa', 'mastercard', 'gpay'])
   paymentMethod: string;
 
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   stripeToken: string;
 }
