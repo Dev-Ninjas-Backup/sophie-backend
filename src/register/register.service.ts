@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import Stripe from 'stripe';
@@ -81,8 +83,9 @@ export class RegisterService {
     const priceMap: Record<string, number> = {
       '1 year': 29900,
       '2 years': 44900,
-      '3 years': 69900,
+      '3 years': 62900,
     };
+
     const amount = priceMap[dto.validity];
 
     const paymentIntent = await this.stripe.paymentIntents.create({
