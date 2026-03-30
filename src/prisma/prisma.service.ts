@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/require-await */
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 // import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
