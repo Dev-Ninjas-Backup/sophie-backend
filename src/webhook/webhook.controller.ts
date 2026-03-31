@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Controller, Post, Req, Res, Headers } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import Stripe from 'stripe';
@@ -63,47 +65,49 @@ export class WebhookController {
       console.error(' Webhook background job failed', err);
     }
   }
-  
 
-private async handlePaymentSucceeded(event: Stripe.Event) {
-  const paymentIntent = event.data.object as Stripe.PaymentIntent;
-  const registrationId = paymentIntent.metadata?.registrationId;
+  private async handlePaymentSucceeded(event: Stripe.Event) {
+    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+    const registrationId = paymentIntent.metadata?.registrationId;
 
-  if (!registrationId) {
-    console.warn('registrationId missing in metadata');
-    return;
-  }
+    if (!registrationId) {
+      console.warn('registrationId missing in metadata');
+      return;
+    }
 
-  const registration = await this.prisma.registration.findUnique({
-    where: { id: registrationId },
-  });
-
-  if (!registration) {
-    console.warn('Registration not found for ID:', registrationId);
-    return;
-  }
-
-  const finalMembershipId = registration.membershipId.replace(/^InActive/, '');
-
-  await this.prisma.$transaction(async (tx) => {
-    await tx.payment.update({
-      where: { stripeSessionId: paymentIntent.id },
-      data: { status: 'succeeded' },
-    });
-
-    await tx.registration.update({
+    const registration = await this.prisma.registration.findUnique({
       where: { id: registrationId },
-      data: {
-        isActive: true,
-        membershipId: finalMembershipId,
-      },
     });
-  });
 
-  console.log(`Payment succeeded for registration ${registrationId} with membershipId ${finalMembershipId}`);
-}
+    if (!registration) {
+      console.warn('Registration not found for ID:', registrationId);
+      return;
+    }
 
+    const finalMembershipId = registration.membershipId.replace(
+      /^InActive/,
+      '',
+    );
 
+    await this.prisma.$transaction(async (tx) => {
+      await tx.payment.update({
+        where: { stripeSessionId: paymentIntent.id },
+        data: { status: 'succeeded' },
+      });
+
+      await tx.registration.update({
+        where: { id: registrationId },
+        data: {
+          isActive: true,
+          membershipId: finalMembershipId,
+        },
+      });
+    });
+
+    console.log(
+      `Payment succeeded for registration ${registrationId} with membershipId ${finalMembershipId}`,
+    );
+  }
 
   private async handlePaymentFailed(event: Stripe.Event) {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
@@ -124,7 +128,7 @@ private async handlePaymentSucceeded(event: Stripe.Event) {
         where: { id: registrationId },
         data: {
           isActive: false,
-          membershipId: "InActive"+registrationId,
+          membershipId: 'InActive' + registrationId,
         },
       });
     });

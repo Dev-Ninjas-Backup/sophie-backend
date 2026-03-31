@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import Stripe from 'stripe';
@@ -8,8 +10,9 @@ import { CreateRegistrationDto } from './dto/create-registration.dto';
 export class RegisterService {
   private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-  constructor(private prisma: PrismaService
-    , private mailService: MembershipMailService
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MembershipMailService,
   ) {}
 
   private async generateUniqueMembershipId(): Promise<string> {
@@ -32,10 +35,7 @@ export class RegisterService {
         AND: [
           { isActive: true },
           {
-            OR: [
-              { email: dto.email },
-              { teudatZehut: dto.teudatZehut },
-            ],
+            OR: [{ email: dto.email }, { teudatZehut: dto.teudatZehut }],
           },
         ],
       },
@@ -44,13 +44,14 @@ export class RegisterService {
     if (existing) {
       const today = new Date();
       if (existing.validTo > today) {
-         await this.mailService.sendMembership(
+        await this.mailService.sendMembership(
           existing.email,
           existing.firstName,
           existing.membershipId,
         );
-        throw new Error('You are already registered. Your membership is still valid. And the membershipId have been sent to your email again.');
-        
+        throw new Error(
+          'You are already registered. Your membership is still valid. And the membershipId have been sent to your email again.',
+        );
       }
     }
 
@@ -71,7 +72,7 @@ export class RegisterService {
         phone: dto.phone,
         teudatZehut: dto.teudatZehut,
         aliyahDate: new Date(dto.aliyahDate),
-        membershipId : "InActive"+membershipId,
+        membershipId: 'InActive' + membershipId,
         validFrom,
         validTo,
         isActive: false,
@@ -79,25 +80,31 @@ export class RegisterService {
       },
     });
 
-    const amount = 30000 * years; 
+    const priceMap: Record<string, number> = {
+      '1 year': 29900,
+      '2 years': 44900,
+      '3 years': 62900,
+    };
 
-const paymentIntent = await this.stripe.paymentIntents.create({
-  amount,
-  currency: 'ils',
-  confirm: true,
-  payment_method_data: {
-    type: 'card',
-    card: { token: dto.stripeToken },
-  } as any,
-  automatic_payment_methods: {
-    enabled: true,
-    allow_redirects: 'never',
-  },
-  metadata: {
-    registrationId: registration.id,
-    paymentMethod: dto.paymentMethod,
-  },
-});
+    const amount = priceMap[dto.validity];
+
+    const paymentIntent = await this.stripe.paymentIntents.create({
+      amount,
+      currency: 'ils',
+      confirm: true,
+      payment_method_data: {
+        type: 'card',
+        card: { token: dto.stripeToken },
+      } as any,
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'never',
+      },
+      metadata: {
+        registrationId: registration.id,
+        paymentMethod: dto.paymentMethod,
+      },
+    });
 
     const paymentRecord = await this.prisma.payment.create({
       data: {
@@ -110,7 +117,6 @@ const paymentIntent = await this.stripe.paymentIntents.create({
       },
     });
 
-
     return {
       registration,
       membershipId,
@@ -118,73 +124,64 @@ const paymentIntent = await this.stripe.paymentIntents.create({
     };
   }
 
-
-
-
-  
   async getRegistrationById(id: string) {
     const registration = await this.prisma.registration.findUnique({
       where: { id },
     });
 
-      if(!registration){
+    if (!registration) {
       throw new Error('Registration not found');
     }
     return registration;
   }
 
+  async findAll(
+    page = '1',
+    limit = '10',
+    isActive?: boolean, // optional filter
+  ) {
+    const pageNum = Number.parseInt(page, 10);
+    const limitNum = Number.parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
 
+    // Build where clause dynamically
+    const where: any = {};
+    if (typeof isActive === 'boolean') {
+      where.isActive = isActive;
+    }
 
-async findAll(
-  page = "1",
-  limit = "10",
-  isActive?: boolean // optional filter
-) {
-  const pageNum = Number.parseInt(page, 10)
-  const limitNum = Number.parseInt(limit, 10)
-  const skip = (pageNum - 1) * limitNum
+    const [data, total] = await Promise.all([
+      this.prisma.registration.findMany({
+        skip,
+        take: limitNum,
+        where,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.registration.count({ where }),
+    ]);
 
-  // Build where clause dynamically
-  const where: any = {}
-  if (typeof isActive === "boolean") {
-    where.isActive = isActive
+    return {
+      data,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum),
+    };
   }
 
-  const [data, total] = await Promise.all([
-    this.prisma.registration.findMany({
-      skip,
-      take: limitNum,
-      where,
-      orderBy: { createdAt: "desc" },
-    }),
-    this.prisma.registration.count({ where }),
-  ])
+  async sendMembershipEmail(registrationId: string) {
+    const registration = await this.prisma.registration.findUnique({
+      where: { id: registrationId },
+    });
 
-  return {
-    data,
-    total,
-    page: pageNum,
-    limit: limitNum,
-    totalPages: Math.ceil(total / limitNum),
+    if (!registration) throw new Error('Registration not found');
+
+    const membershipId = registration.membershipId.replace(/^InActive/, '');
+
+    return this.mailService.sendMembership(
+      registration.email,
+      registration.firstName,
+      membershipId,
+    );
   }
-}
-
-
-async sendMembershipEmail(registrationId: string) {
-  const registration = await this.prisma.registration.findUnique({
-    where: { id: registrationId },
-  });
-
-  if (!registration) throw new Error('Registration not found');
-
-  const membershipId = registration.membershipId.replace(/^InActive/, '');
-
-  return this.mailService.sendMembership(
-    registration.email,
-    registration.firstName,
-    membershipId,
-  );
-}
-
-
 }

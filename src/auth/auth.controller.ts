@@ -42,15 +42,10 @@ export class AuthController {
     return this.service.logout(res);
   }
 
-
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-   @Roles('ADMIN')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('ADMIN')
   @Post('reset-password')
-  resetPassword(
-    @Req() req: any,
-    @Body() dto: ResetPasswordDto,
-  ) {
+  resetPassword(@Req() req: any, @Body() dto: ResetPasswordDto) {
     return this.service.resetPassword(req.user.id, dto);
   }
-
 }

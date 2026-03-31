@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // category/category.service.ts
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -7,47 +9,46 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
-async create(data: CreateCategoryDto) {
-  try {
-    // Check if a category with the same name already exists
-    const existingCategory = await this.prisma.category.findFirst({
-      where: { name: data.name },
-    });
+  async create(data: CreateCategoryDto) {
+    try {
+      // Check if a category with the same name already exists
+      const existingCategory = await this.prisma.category.findFirst({
+        where: { name: data.name },
+      });
 
-    if (existingCategory) {
+      if (existingCategory) {
+        throw new HttpException(
+          {
+            success: false,
+            message: 'Category with this name already exists',
+          },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const category = await this.prisma.category.create({
+        data,
+        include: { partners: true },
+      });
+
+      return {
+        success: true,
+        message: 'Category created successfully',
+        data: category,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       throw new HttpException(
         {
           success: false,
-          message: 'Category with this name already exists',
+          message: 'Failed to create category',
+          error: error.message,
         },
-        HttpStatus.CONFLICT,
+        HttpStatus.BAD_REQUEST,
       );
     }
-
-    const category = await this.prisma.category.create({
-      data,
-      include: { partners: true },
-    });
-
-    return {
-      success: true,
-      message: 'Category created successfully',
-      data: category,
-    };
-  } catch (error) {
-    if (error instanceof HttpException) throw error;
-
-    throw new HttpException(
-      {
-        success: false,
-        message: 'Failed to create category',
-        error: error.message,
-      },
-      HttpStatus.BAD_REQUEST,
-    );
   }
-}
-
 
   async findAll() {
     try {
@@ -107,17 +108,20 @@ async create(data: CreateCategoryDto) {
 
   async delete(id: string) {
     try {
+      // Manual deleteMany dorkor nai jodi schema-te onDelete: Cascade thake
       const category = await this.prisma.category.delete({
         where: { id },
-        include: { partners: true }, 
       });
 
       return {
         success: true,
-        message: 'Category deleted successfully',
+        message: 'Category and all related partners deleted successfully',
         data: category,
       };
     } catch (error) {
+      if (error.code === 'P2025') {
+        throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+      }
       throw new HttpException(
         {
           success: false,
@@ -128,6 +132,4 @@ async create(data: CreateCategoryDto) {
       );
     }
   }
-
 }
-
