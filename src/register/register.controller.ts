@@ -1,11 +1,14 @@
 import { Body, Controller, Post, HttpException, HttpStatus, Get, Param, Query } from '@nestjs/common';
 import { RegisterService } from './register.service';
 import { CreateRegistrationDto } from './dto/create-registration.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('Registration')
 @Controller('register')
 export class RegisterController {
   constructor(private readonly registerService: RegisterService) {}
 
+  @ApiOperation({ summary: 'Register a user with payment' })
   @Post()
   async register(@Body() createRegistrationDto: CreateRegistrationDto) {
     try {
@@ -27,7 +30,8 @@ export class RegisterController {
     }
   }
 
-    @Get(':id')
+  @ApiOperation({ summary: 'Get registration by ID' })
+  @Get(':id')
   async getRegistrationById(@Param('id') id: string) {
     try {
       const registration = await this.registerService.getRegistrationById(id);
@@ -46,8 +50,9 @@ export class RegisterController {
     }
   }
 
-@Get()
-async getAllRegistrations(
+  @ApiOperation({ summary: 'Get all registrations' })
+  @Get()
+  async getAllRegistrations(
   @Query('page') page = '1',
   @Query('limit') limit = '10',
   @Query('isActive') isActive?: string
@@ -71,7 +76,8 @@ async getAllRegistrations(
 }
 
 
-@Get('send-mail/:id')
+  @ApiOperation({ summary: 'Send membership mail by ID' })
+  @Get('send-mail/:id')
   async sendMembershipMail(@Param('id') id: string) {
     const registration = await this.registerService.getRegistrationById(id);
 

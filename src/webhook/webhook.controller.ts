@@ -4,7 +4,9 @@ import { Controller, Post, Req, Res, Headers } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { PrismaService } from '../prisma/prisma.service';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('Webhooks')
 @Controller('webhook')
 export class WebhookController {
   private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -26,6 +28,7 @@ export class WebhookController {
   //   return id;
   // }
 
+  @ApiOperation({ summary: 'Handle Stripe webhook events' })
   @Post()
   async handleStripeWebhook(
     @Req() req: Request,

@@ -5,26 +5,31 @@ import { CreatePartnerDto } from './dto/create-partner.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('Partners')
 @Controller('partners')
 export class PartnerController {
   constructor(private service: PartnerService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
- @Roles('ADMIN')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Create a new partner' })
   @Post()
   async create(@Body() dto: CreatePartnerDto) {
     return this.service.create(dto);
   }
 
 
+  @ApiOperation({ summary: 'Get all partners' })
   @Get()
   async findAll() {
     return this.service.findAll();
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
- @Roles('ADMIN')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Delete a partner' })
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.service.delete(id);
