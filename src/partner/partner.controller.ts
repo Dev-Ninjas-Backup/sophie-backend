@@ -14,10 +14,7 @@ export class PartnerController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('ADMIN')
-<<<<<<< HEAD
-=======
   @ApiOperation({ summary: 'Create a new partner' })
->>>>>>> ec971888235fd5ca5ba8c8abbc886e118a74ad62
   @Post()
   async create(@Body() dto: CreatePartnerDto) {
     return this.service.create(dto);
@@ -32,10 +29,6 @@ export class PartnerController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('ADMIN')
-<<<<<<< HEAD
-=======
-  @ApiOperation({ summary: 'Delete a partner' })
->>>>>>> ec971888235fd5ca5ba8c8abbc886e118a74ad62
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.service.delete(id);
