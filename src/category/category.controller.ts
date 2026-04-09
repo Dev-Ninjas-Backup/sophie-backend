@@ -6,10 +6,12 @@ import {
   Get,
   Param,
   Delete,
+  Patch,
   UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -36,6 +38,12 @@ export class CategoryController {
     return this.service.findOne(id);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('ADMIN')
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
+    return this.service.update(id, dto);
+  }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
  @Roles('ADMIN')

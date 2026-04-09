@@ -1,5 +1,5 @@
 // partner/partner.controller.ts
-import { Controller, Post, Get, Param, Body, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Delete, UseGuards, Patch } from '@nestjs/common';
 import { PartnerService } from './partner.service';
 import { CreatePartnerDto } from './dto/create-partner.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,10 +8,10 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('partners')
 export class PartnerController {
-  constructor(private service: PartnerService) {}
+  constructor(private service: PartnerService) { }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
- @Roles('ADMIN')
+  @Roles('ADMIN')
   @Post()
   async create(@Body() dto: CreatePartnerDto) {
     return this.service.create(dto);
@@ -24,9 +24,17 @@ export class PartnerController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
- @Roles('ADMIN')
+  @Roles('ADMIN')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.service.delete(id);
+  }
+
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('ADMIN')
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() dto: Partial<CreatePartnerDto>) {
+    return this.service.update(id, dto);
   }
 }

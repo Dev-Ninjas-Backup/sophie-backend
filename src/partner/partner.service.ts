@@ -11,7 +11,7 @@ import { CreatePartnerDto } from './dto/create-partner.dto';
 
 @Injectable()
 export class PartnerService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // Only create
   // async create(data: CreatePartnerDto) {
@@ -140,5 +140,47 @@ export class PartnerService {
       message: 'Partners fetched successfully',
       data: partners,
     };
+  }
+
+
+  async update(id: string, data: Partial<CreatePartnerDto>) {
+    try {
+      const existingPartner = await this.prisma.partner.findUnique({
+        where: { id },
+      });
+
+      if (!existingPartner) {
+        throw new NotFoundException('Partner not found');
+      }
+
+      if (data.categoryId) {
+        const category = await this.prisma.category.findUnique({
+          where: { id: data.categoryId },
+        });
+        if (!category) {
+          throw new NotFoundException('Category not found');
+        }
+      }
+
+      const updatedPartner = await this.prisma.partner.update({
+        where: { id },
+        data: {
+          name: data.name,
+          discount: data.discount,
+          category: data.categoryId
+            ? { connect: { id: data.categoryId } }
+            : undefined,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Partner updated successfully',
+        data: updatedPartner,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException('Failed to update partner');
+    }
   }
 }
