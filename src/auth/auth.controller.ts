@@ -12,6 +12,7 @@ import express from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 // import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -20,15 +21,18 @@ import { Roles } from './decorators/roles.decorator';
 // import { JwtAuthGuard, RolesGuard } from './guards/roles.guard';
 // import { Roles } from './decorators/roles.decorator';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private service: AuthService) {}
 
+  @ApiOperation({ summary: 'Register a new user' })
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.service.register(dto);
   }
 
+  @ApiOperation({ summary: 'Login user' })
   @Post('login')
   login(
     @Body() dto: LoginDto,
@@ -37,6 +41,7 @@ export class AuthController {
     return this.service.login(dto, res);
   }
 
+  @ApiOperation({ summary: 'Logout user' })
   @Post('logout')
   logout(@Res({ passthrough: true }) res: express.Response) {
     return this.service.logout(res);
@@ -44,6 +49,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('ADMIN')
+  @ApiOperation({ summary: 'Reset a user password (Admin only)' })
   @Post('reset-password')
   resetPassword(@Req() req: any, @Body() dto: ResetPasswordDto) {
     return this.service.resetPassword(req.user.id, dto);
