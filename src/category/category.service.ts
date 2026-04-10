@@ -55,6 +55,7 @@ export class CategoryService {
     try {
       const categories = await this.prisma.category.findMany({
         include: { partners: true }, // Populate partners
+           orderBy: { name: 'asc' },
       });
 
       return {
