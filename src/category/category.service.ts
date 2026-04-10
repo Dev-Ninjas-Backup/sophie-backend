@@ -51,11 +51,21 @@ export class CategoryService {
     }
   }
 
-  async findAll() {
+async findAll() {
     try {
       const categories = await this.prisma.category.findMany({
-        include: { partners: true }, // Populate partners
-           orderBy: { name: 'asc' },
+        include: { 
+          partners: {
+            // Bhitorer partners gulo ke creation time onujayi shajabe
+            orderBy: {
+              createdAt: 'asc' 
+            }
+          } 
+        },
+        // Main categories gulo ke name onujayi shajabe
+        orderBy: { 
+          name: 'asc' 
+        },
       });
 
       return {
@@ -75,11 +85,18 @@ export class CategoryService {
     }
   }
 
-  async findOne(id: string) {
+async findOne(id: string) {
     try {
       const category = await this.prisma.category.findUnique({
         where: { id },
-        include: { partners: true }, // Populate partners
+        include: { 
+          partners: {
+            // Partners gulo ke create korar serial onujayi shajabe
+            orderBy: {
+              createdAt: 'asc'
+            }
+          } 
+        },
       });
 
       if (!category) {
