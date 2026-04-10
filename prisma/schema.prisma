@@ -63,26 +63,22 @@ model Registration {
 
 // Category -> Partner
 model Category {
-  id       String     @id @default(uuid())
+  id       String    @id @default(uuid())
   name     String
+  createdAt DateTime @default(now()) // Category-r jonno o add kora bhalo
   partners Partner[]
 }
 
-
-// Partner -> Category
 model Partner {
-  id         String    @id @default(uuid())
+  id         String   @id @default(uuid())
   name       String
   discount   String
   categoryId String
-
-  // maxRedeems  Int  @default(1)
-
+  createdAt  DateTime @default(now()) // Ei line-ti add korun
 
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  redeems  Redeem[]
+  redeems    Redeem[]
 }
-
 
 // Redeem -> Registration + Partner
 model Redeem {
