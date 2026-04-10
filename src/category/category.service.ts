@@ -63,9 +63,9 @@ async findAll() {
           } 
         },
         // Main categories gulo ke name onujayi shajabe
-        orderBy: { 
-          name: 'asc' 
-        },
+        orderBy: {
+              createdAt: 'asc' 
+            }
       });
 
       return {
